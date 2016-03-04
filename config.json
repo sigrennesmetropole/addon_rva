@@ -1,0 +1,28 @@
+[{
+    "id": "rva_0",
+    "name": "RVA",
+    "enabled": true,
+    "options": {
+        "key": "ccac703c27033deac43c",
+        "minChars": 7,
+        "graphicStyle": {
+            "graphicName": "star",
+            "pointRadius": 4,
+            "strokeColor": "fuchsia",
+            "strokeWidth": 2,
+            "fillOpacity": 0
+        }
+    },
+    "title": {
+        "en": "RVA",
+        "fr": "RVA",
+        "es": "RVA",
+        "de": "RVA",
+    },
+    "description": {
+        "en": "...",
+        "fr": "Trouvez en quelques secondes une adresse avec l'API RVA de Rennes Métropole",
+        "de": "...",
+        "es": "..."
+    }
+}]

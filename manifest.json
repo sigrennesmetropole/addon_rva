@@ -1,0 +1,42 @@
+{
+    "js": [
+        "js/OpenLayers.Format.RVA.js",
+        "js/OpenLayers.Protocol.HTTP.js",
+        "js/main.js"
+    ],
+    "default_options": {
+        "target": "tabs_3",
+        "service": "http://rva.data.rennes-metropole.fr/",
+        "minChars": 7,
+        "graphicStyle": {
+            "graphicName": "star",
+            "pointRadius": 4,
+            "strokeColor": "fuchsia",
+            "strokeWidth": 2,
+            "fillOpacity": 0
+        },
+        "supported_srs": [3948, 2154, 4326]
+    },
+    "i18n": {
+        "en": {
+            "addon_rva_emptyText": "Quick search...",
+            "addon_rva_tabTitle": "RVA",
+            "addon_rva_searchTip": "Recherche rapide d'une adresse"
+        },
+        "es": {
+            "addon_rva_emptyText": "Búsqueda rápida...",
+            "addon_rva_tabTitle": "RVA",
+            "addon_rva_searchTip": "Recherche rapide d'une adresse"
+        },
+        "fr": {
+            "addon_rva_emptyText": "Cherchez une adresse...",
+            "addon_rva_tabTitle": "RVA",
+            "addon_rva_searchTip": "Recherche rapide d'une adresse"
+        },
+        "de": {
+            "addon_rva_emptyText": "Suchen...",
+            "addon_rva_tabTitle": "RVA",
+            "addon_rva_searchTip": "Recherche rapide d'une adresse"
+        }
+    }
+}
