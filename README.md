@@ -1,9 +1,9 @@
 ADDON RVA
 ==========
 
-Cet addon permet de requêter l'[API RVA de Rennes Métropole](http://rva.data.rennes-metropole.fr/).
+Cet [addon](https://github.com/georchestra/georchestra/blob/15.12/mapfishapp/src/main/webapp/app/addons/README.md) permet de requêter l'[API RVA de Rennes Métropole](http://rva.data.rennes-metropole.fr/) depuis le visualiseur de [geOrchestra](http://www.georchestra.org/).
 
-auteur : @fvanderbiest 
+auteur : [@fvanderbiest](https://github.com/fvanderbiest/)
 
 Compatibilité : geOrchestra >= 15.12
 
