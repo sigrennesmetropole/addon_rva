@@ -17,12 +17,12 @@
         "en": "RVA",
         "fr": "RVA",
         "es": "RVA",
-        "de": "RVA",
+        "de": "RVA"
     },
     "description": {
-        "en": "...",
+        "en": "Trouvez en quelques secondes une adresse avec l'API RVA de Rennes Métropole",
         "fr": "Trouvez en quelques secondes une adresse avec l'API RVA de Rennes Métropole",
-        "de": "...",
-        "es": "..."
+        "de": "Trouvez en quelques secondes une adresse avec l'API RVA de Rennes Métropole",
+        "es": "Trouvez en quelques secondes une adresse avec l'API RVA de Rennes Métropole"
     }
 }]
