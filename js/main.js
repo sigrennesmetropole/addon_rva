@@ -178,7 +178,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             buttons: [{
                 text: tr("zoom"),
                 handler: function() {
-                    this.map.zoomToExtent(this.layer.getDataExtent());
+                    this.map.zoomTo(this.options.zoomLevel);
                 },
                 scope: this
             }]
