@@ -19,6 +19,68 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         });
         this.map.addLayer(this.layer);
 
+        this.state = "searchaddress";
+
+        this.events = new Ext.util.Observable();
+
+        /**
+         * We are looking for a line
+         */
+        this.events.addEvents("searchlane");
+
+        /**
+         * We are looking for an address
+         */
+        this.events.addEvents("searchaddress");
+
+        /**
+         * We selected a lane
+         */
+        this.events.addEvents("laneselected");
+
+        /**
+         * We selected an address
+         */
+        this.events.addEvents("adressselected");
+
+        this.events.on({
+            "searchlane": {
+                fn: function(query) {
+                    if (this.state !== "searchlane") {
+                        this.combo = this.combo.cloneConfig({
+                            store: this._createLanesStore(),
+                            tpl: new Ext.XTemplate(
+                                '<tpl for="."><div class="x-combo-list-item" ext:qtip="{values.feature.attributes.name}">',
+                                '{values.feature.attributes.name}',
+                                '</div></tpl>'
+                            )
+                        });
+                        this.components.destroy();
+                        this.components = this.target.insert(this.position, {
+                            xtype: 'form',
+                            bodyStyle: 'padding: 1.5em;',
+                            title: tr("addon_rva_tabTitle"),
+                            labelWidth: 1,
+                            items: this.combo
+                        });
+                        this.target.setActiveTab(2);
+                        this.combo.setValue(query.query);
+                    }
+                    this.state = "searchlane";
+
+
+                },
+                scope: this
+            },
+            "searchaddress": {
+                fn: function(query) {
+
+                },
+                scope: this
+            }
+        });
+
+
         this.combo = new Ext.form.ComboBox({
             hideTrigger: true,
             selectOnFocus: true,
@@ -29,6 +91,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             loadingText: tr('Loading...'),
             minChars: this.options.minChars,
             queryDelay: 100,
+            displayField: "addr3",
             tpl: new Ext.XTemplate(
                 '<tpl for="."><div class="x-combo-list-item" ext:qtip="{values.feature.attributes.addr3}">',
                 '{values.feature.attributes.addr3}',
@@ -39,6 +102,16 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             triggerAction: 'all',
             width: 250,
             listeners: {
+                "beforequery": {
+                    fn: function(query) {
+                        if (/^\d+/.test(query.query)) {
+                            this.events.fireEvent("searchaddress", query);
+                        } else {
+                            this.events.fireEvent("searchlane", query);
+                        }
+                    },
+                    scope: this
+                },
                 "render": function(c) {
                     new Ext.ToolTip({
                         target: c.getEl(),
@@ -79,7 +152,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             // we have to reproject client side
             api_srs = 4326;
             formatOptions = {
-                internalProjection: new OpenLayers.Projection("EPSG:"+map_srs),
+                internalProjection: new OpenLayers.Projection("EPSG:" + map_srs),
                 externalProjection: new OpenLayers.Projection("EPSG:4326")
             };
         }
@@ -89,7 +162,8 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 {name: 'idlane', type: "int"},
                 {name: 'number', type: "int"},
                 'extension',
-                'building'
+                'building',
+                'addr3'
             ],
             layer: this.layer,
             proxy: new GeoExt.data.ProtocolProxy({
@@ -117,10 +191,86 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     field: 'number',
                     direction: "ASC"
                 }, {
-                    field: 'extension', 
+                    field: 'extension',
                     direction: "ASC"
                 }, {
-                    field: 'building', 
+                    field: 'building',
+                    direction: "ASC"
+                }],
+                direction: 'ASC'
+            },
+            listeners: {
+                'datachanged': function(store) {
+                    this.popup && this.popup.close();
+                    if (store.getCount() == 0) {
+                        return;
+                    }
+                    var bounds = new OpenLayers.Bounds(),
+                        records = store.getRange();
+                    Ext.each(records, function(r) {
+                        var f = r.getFeature();
+                        // copy feature attributes to record:
+                        Ext.applyIf(r.data, f.attributes);
+                        if (f.geometry) {
+                            bounds.extend(f.geometry.getBounds());
+                        }
+                    });
+                    this.map.zoomToExtent(bounds);
+                },
+                scope: this
+            }
+        });
+    },
+
+    /**
+     * Method: _createLanesStore
+     *
+     */
+    _createLanesStore: function() {
+        var api_srs = null,
+            formatOptions = {},
+            map_srs = this.map.getProjection().split(':')[1];
+
+        if (this.options.supported_srs.indexOf(map_srs) > -1) {
+            // the API natively supports our map SRS
+            // let's use this SRS.
+            api_srs = map_srs;
+        } else {
+            // we have to reproject client side
+            api_srs = 4326;
+            formatOptions = {
+                internalProjection: new OpenLayers.Projection("EPSG:" + map_srs),
+                externalProjection: new OpenLayers.Projection("EPSG:4326")
+            };
+        }
+        return new GeoExt.data.FeatureStore({
+            fields: [
+                'insee',
+                'name',
+                'name3'
+            ],
+            layer: this.layer,
+            proxy: new GeoExt.data.ProtocolProxy({
+                protocol: new OpenLayers.Protocol.HTTP({
+                    url: this.options.service,
+                    params: {
+                        key: this.options.key,
+                        version: '1.0',
+                        format: 'json',
+                        epsg: api_srs,
+                        insee: 'all',
+                        cmd: 'getlanes'
+                    },
+                    format: new OpenLayers.Format.RVALane(formatOptions)
+                })
+            }),
+            hasMultiSort: true,
+            multiSortInfo: {
+                sorters: [{
+                    field: 'insee',
+                    direction: "ASC"
+                }, {
+                    field: 'name3',
                     direction: "ASC"
                 }],
                 direction: 'ASC'
@@ -190,9 +340,10 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         this.popup.show();
     },
 
+
     /**
      * Method: destroy
-     * 
+     *
      */
     destroy: function() {
         this.popup && this.popup.destroy();
