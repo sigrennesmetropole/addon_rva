@@ -328,40 +328,52 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
      * Callback on combo selected
      */
     _onComboSelect: function(combo, record) {
-        var f = record.get('feature').clone();
-        this.layer.destroyFeatures();
-        this.popup && this.popup.destroy();
-        this.map.setCenter(f.geometry.getBounds().getCenterLonLat());
-        this.layer.addFeatures([f]);
-        this.popup = new GeoExt.Popup({
-            location: f,
-            width: 300,
-            tpl: ["<p>{address}</p><p>idaddress : {idaddress}</p>"],
-            data: {
-                address: f.attributes.addr3,
-                idaddress: f.attributes.idaddress
-            },
-            anchorPosition: "top-left",
-            bodyStyle: "padding: 5px;",
-            collapsible: false,
-            closable: true,
-            closeAction: "hide",
-            unpinnable: true,
-            listeners: {
-                "hide": function() {
-                    this.layer.destroyFeatures();
+        if (this.state === "searchaddress") {
+            var f = record.get('feature').clone();
+            this.layer.destroyFeatures();
+            this.popup && this.popup.destroy();
+            this.map.setCenter(f.geometry.getBounds().getCenterLonLat());
+            this.layer.addFeatures([f]);
+            this.popup = new GeoExt.Popup({
+                location: f,
+                width: 300,
+                tpl: ["<p>{address}</p><p>idaddress : {idaddress}</p>"],
+                data: {
+                    address: f.attributes.addr3,
+                    idaddress: f.attributes.idaddress
                 },
-                scope: this
-            },
-            buttons: [{
-                text: tr("zoom"),
-                handler: function() {
-                    this.map.zoomTo(this.options.zoomLevel);
+                anchorPosition: "top-left",
+                bodyStyle: "padding: 5px;",
+                collapsible: false,
+                closable: true,
+                closeAction: "hide",
+                unpinnable: true,
+                listeners: {
+                    "hide": function() {
+                        this.layer.destroyFeatures();
+                    },
+                    scope: this
                 },
-                scope: this
-            }]
-        });
-        this.popup.show();
+                buttons: [{
+                    text: tr("zoom"),
+                    handler: function() {
+                        this.map.zoomToExtent(this.layer.getDataExtent());
+                    },
+                    scope: this
+                }]
+            });
+            this.popup.show();
+        }
+        if (this.state === "searchlane") {
+            var f = record.get('feature').clone();
+            this.layer.destroyFeatures();
+            this.popup && this.popup.destroy();
+            this.map.setCenter(f.geometry.getBounds().getCenterLonLat());
+            this.layer.addFeatures([f]);
+            this.map.zoomToExtent(this.layer.getDataExtent());
+
+        }
+
     },
 
 
