@@ -65,6 +65,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         });
                         this.target.setActiveTab(2);
                         this.combo.setValue(query.query);
+                        this.combo.focus();
                     }
                     this.state = "searchlane";
 
@@ -74,6 +75,29 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             },
             "searchaddress": {
                 fn: function(query) {
+                    if (this.state !== "searchaddress") {
+                        this.combo = this.combo.cloneConfig({
+                            store: this._createStore(),
+                            tpl: new Ext.XTemplate(
+                                '<tpl for="."><div class="x-combo-list-item" ext:qtip="{values.feature.attributes.addr3}">',
+                                '{values.feature.attributes.addr3}',
+                                '</div></tpl>'
+                            )
+                        });
+                        this.components.destroy();
+                        this.components = this.target.insert(this.position, {
+                            xtype: 'form',
+                            bodyStyle: 'padding: 1.5em;',
+                            title: tr("addon_rva_tabTitle"),
+                            labelWidth: 1,
+                            items: this.combo
+                        });
+                        this.target.setActiveTab(2);
+                        this.combo.setValue(query.query);
+                        this.combo.focus();
+
+                    }
+                    this.state = "searchaddress";
 
                 },
                 scope: this
