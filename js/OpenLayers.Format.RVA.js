@@ -177,8 +177,8 @@ OpenLayers.Format.RVALane = OpenLayers.Class(OpenLayers.Format.JSON, {
      * {<OpenLayers.Geometry>} A geometry.
      */
     parseGeometry: function(lowerCorner, upperCorner) {
-        var bounds = new OpenLayers.Bounds(lowerCorner.split(" ")[1], lowerCorner.split(" ")[0],
-            upperCorner.split(" ")[1], upperCorner.split(" ")[0]);
+        var bounds = new OpenLayers.Bounds(lowerCorner.split(" ")[0], lowerCorner.split(" ")[1],
+            upperCorner.split(" ")[0], upperCorner.split(" ")[1]);
         var geometry = bounds.toGeometry();
         if (this.internalProjection && this.externalProjection) {
             geometry.transform(this.externalProjection,
