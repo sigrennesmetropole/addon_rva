@@ -247,6 +247,78 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
     },
 
     /**
+     * Method: _createAddressesStore
+     *
+     */
+    _createAddressesStore: function(idlane) {
+        var store = null,
+            api_srs = null,
+            formatOptions = {},
+            map_srs = this.map.getProjection().split(':')[1];
+
+        if (this.options.supported_srs.indexOf(map_srs) > -1) {
+            // the API natively supports our map SRS
+            // let's use this SRS.
+            api_srs = map_srs;
+        } else {
+            // we have to reproject client side
+            api_srs = 4326;
+            formatOptions = {
+                internalProjection: new OpenLayers.Projection("EPSG:" + map_srs),
+                externalProjection: new OpenLayers.Projection("EPSG:4326")
+            };
+        }
+        store = new GeoExt.data.FeatureStore({
+            autoLoad: true,
+            fields: [
+                'insee',
+                {name: 'idlane', type: "int"},
+                {name: "idaddress", type: "int"},
+                {name: 'number', type: "int"},
+                'extension',
+                'building',
+                'addr3'
+            ],
+            layer: this.layer,
+            proxy: new GeoExt.data.ProtocolProxy({
+                protocol: new OpenLayers.Protocol.HTTP({
+                    url: this.options.service,
+                    params: {
+                        key: this.options.key,
+                        version: '1.0',
+                        format: 'json',
+                        epsg: api_srs,
+                        cmd: 'getaddresses',
+                        idlane: idlane
+                    },
+                    format: new OpenLayers.Format.RVA(formatOptions)
+                })
+            }),
+            hasMultiSort: true,
+            multiSortInfo: {
+                sorters: [{
+                    field: 'insee',
+                    direction: "ASC"
+                }, {
+                    field: 'idlane',
+                    direction: "ASC"
+                }, {
+                    field: 'number',
+                    direction: "ASC"
+                }, {
+                    field: 'extension',
+                    direction: "ASC"
+                }, {
+                    field: 'building',
+                    direction: "ASC"
+                }],
+                direction: 'ASC'
+            }
+        });
+        return store;
+    },
+
+    /**
      * Method: _createLanesStore
      *
      */
@@ -371,6 +443,56 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             this.map.setCenter(f.geometry.getBounds().getCenterLonLat());
             this.layer.addFeatures([f]);
             this.map.zoomToExtent(this.layer.getDataExtent());
+
+            this.laneWindow = new Ext.Window({
+                //TODO tr
+                title: "Adresses sur la voie",
+                width: 540,
+                autoHeight: true,
+                maxHeight: 540,
+                closable: true,
+                closeAction: "hide",
+                items: [
+                    {
+                        xtype: "grid",
+                        store: this._createAddressesStore(f.attributes.idlane),
+                        autoExpandColumn: "addr3",
+                        colModel: new Ext.grid.ColumnModel({
+                            defaults: {
+                                sortable: true
+                            },
+                            //TODO tr
+                            columns: [
+                                {id: 'insee', header: "Insee", dataIndex: "insee", width: 60},
+                                {id: "idaddres", header: "Idaddress", dataIndex: "idaddress", width: 60},
+                                {id: "number", header: "Num.", dataIndex: "number", width: 40},
+                                {id: 'extension', header: "Ext", dataIndex: "extension", width: 40},
+                                {id: 'building', header: "Bât", dataIndex: "building", width: 40},
+                                {id: 'addr3', header: "Adresse", dataIndex: "addr3"}
+                            ]
+                        }),
+                        sm: new Ext.grid.RowSelectionModel({
+                            singleSelect: true,
+                            listeners: {
+                                "rowselect": {
+                                    fn: function(sm, idx, r) {
+                                        var lonlat = new OpenLayers.LonLat(r.data.feature.geometry.x,
+                                            r.data.feature.geometry.y);
+                                        this.map.panTo(lonlat);
+                                    },
+                                    scope: this
+                                }
+                            }
+                        }),
+                        width: 520,
+                        autoHeight: true,
+                        frame: true
+                    }
+                ]
+
+            });
+
+            this.laneWindow.show();
 
         }
 
