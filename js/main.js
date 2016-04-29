@@ -157,6 +157,52 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         // switch to this new tab:
         this.target.layout.setActiveItem(this.components);
         this.target.doLayout();
+
+        me = this;
+        this.laneWindow = new Ext.Window({
+            //TODO tr
+            title: "Adresses sur la voie",
+            layout: "table",
+            layoutConfig: {
+                columns: 1
+            },
+            width: 540,
+            autoHeight: true,
+            closable: true,
+            closeAction: "hide",
+            items: [
+                {
+                    id: "rva-lane-grid",
+                    xtype: "grid",
+                    store: this._createAddressesStore(""),
+                    autoExpandColumn: "addr3",
+                    columns: [
+                        {id: 'insee', header: "Insee", dataIndex: "insee", width: 60},
+                        {id: "idaddres", header: "Idaddress", dataIndex: "idaddress", width: 60},
+                        {id: "number", header: "Num.", dataIndex: "number", width: 40},
+                        {id: 'extension', header: "Ext", dataIndex: "extension", width: 40},
+                        {id: 'building', header: "Bât", dataIndex: "building", width: 40},
+                        {id: 'addr3', header: "Adresse", dataIndex: "addr3"}
+                    ],
+                    sm: new GeoExt.grid.FeatureSelectionModel({
+                        autoPanMapOnSelection: true
+                    }),
+                    width: 520,
+                    height: 520,
+                    frame: true
+                }
+            ],
+            buttons: [
+                {
+                    text: "Close",
+                    handler: function() {
+                        this.laneWindow.hide();
+                    },
+                    scope: this
+                }
+            ]
+
+        });
     },
 
     /**
@@ -269,7 +315,6 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             };
         }
         store = new GeoExt.data.FeatureStore({
-            autoLoad: true,
             fields: [
                 'insee',
                 {name: 'idlane', type: "int"},
@@ -288,8 +333,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         version: '1.0',
                         format: 'json',
                         epsg: api_srs,
-                        cmd: 'getaddresses',
-                        idlane: idlane
+                        cmd: 'getaddresses'
                     },
                     format: new OpenLayers.Format.RVA(formatOptions)
                 })
@@ -444,55 +488,18 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             this.layer.addFeatures([f]);
             this.map.zoomToExtent(this.layer.getDataExtent());
 
-            this.laneWindow = new Ext.Window({
-                //TODO tr
-                title: "Adresses sur la voie",
-                width: 540,
-                autoHeight: true,
-                maxHeight: 540,
-                closable: true,
-                closeAction: "hide",
-                items: [
-                    {
-                        xtype: "grid",
-                        store: this._createAddressesStore(f.attributes.idlane),
-                        autoExpandColumn: "addr3",
-                        colModel: new Ext.grid.ColumnModel({
-                            defaults: {
-                                sortable: true
-                            },
-                            //TODO tr
-                            columns: [
-                                {id: 'insee', header: "Insee", dataIndex: "insee", width: 60},
-                                {id: "idaddres", header: "Idaddress", dataIndex: "idaddress", width: 60},
-                                {id: "number", header: "Num.", dataIndex: "number", width: 40},
-                                {id: 'extension', header: "Ext", dataIndex: "extension", width: 40},
-                                {id: 'building', header: "Bât", dataIndex: "building", width: 40},
-                                {id: 'addr3', header: "Adresse", dataIndex: "addr3"}
-                            ]
-                        }),
-                        sm: new Ext.grid.RowSelectionModel({
-                            singleSelect: true,
-                            listeners: {
-                                "rowselect": {
-                                    fn: function(sm, idx, r) {
-                                        var lonlat = new OpenLayers.LonLat(r.data.feature.geometry.x,
-                                            r.data.feature.geometry.y);
-                                        this.map.panTo(lonlat);
-                                    },
-                                    scope: this
-                                }
-                            }
-                        }),
-                        width: 520,
-                        autoHeight: true,
-                        frame: true
-                    }
-                ]
 
-            });
-
-            this.laneWindow.show();
+            var laneGrid = Ext.getCmp("rva-lane-grid");
+            laneGrid.getStore().load({
+                    params: {
+                        idlane: f.attributes.idlane
+                    },
+                    callback: function() {
+                        this.laneWindow.show();
+                    },
+                    scope: this
+                }
+            );
 
         }
 
