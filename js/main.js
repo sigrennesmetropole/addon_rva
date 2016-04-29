@@ -162,7 +162,8 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         this.popup = new GeoExt.Popup({
             location: f,
             width: 300,
-            html: f.attributes.addr3,
+            tpl: ["<p>{addr3}</p><p>idaddress : {idaddress}</p>"],
+            data: f.attributes,
             anchorPosition: "top-left",
             bodyStyle: "padding: 5px;",
             collapsible: false,
