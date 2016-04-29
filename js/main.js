@@ -17,7 +17,14 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 "default": this.options.graphicStyle
             })
         });
+        this.layerLane = new OpenLayers.Layer.Vector("__georchestra_rvaLane", {
+            displayInLayerSwitcher: false,
+            styleMap: new OpenLayers.StyleMap({
+                "default": this.options.graphicStyle
+            })
+        });
         this.map.addLayer(this.layer);
+        this.map.addLayer(this.layerLane);
 
         this.state = "searchaddress";
 
@@ -34,6 +41,11 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         this.events.addEvents("searchaddress");
 
         /**
+         * We are not looking for anything
+         */
+        this.events.addEvents("searchnoting");
+
+        /**
          * We selected a lane
          */
         this.events.addEvents("laneselected");
@@ -47,6 +59,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             "searchlane": {
                 fn: function(query) {
                     if (this.state !== "searchlane") {
+                        console.log("searchlane");
                         this.combo = this.combo.cloneConfig({
                             store: this._createLanesStore(),
                             tpl: new Ext.XTemplate(
@@ -65,7 +78,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         });
                         this.target.setActiveTab(2);
                         this.combo.setValue(query.query);
-                        this.combo.focus();
+                        this.combo.focus(false);
                     }
                     this.state = "searchlane";
 
@@ -76,6 +89,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             "searchaddress": {
                 fn: function(query) {
                     if (this.state !== "searchaddress") {
+                        console.log("searchaddress");
                         this.combo = this.combo.cloneConfig({
                             store: this._createStore(),
                             tpl: new Ext.XTemplate(
@@ -94,7 +108,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         });
                         this.target.setActiveTab(2);
                         this.combo.setValue(query.query);
-                        this.combo.focus();
+                        this.combo.focus(false);
 
                     }
                     this.state = "searchaddress";
@@ -128,7 +142,9 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             listeners: {
                 "beforequery": {
                     fn: function(query) {
-                        if (/^\d+/.test(query.query)) {
+                        if (query.query === "") {
+                            return;
+                        } else if (/^\d+/.test(query.query)) {
                             this.events.fireEvent("searchaddress", query);
                         } else {
                             this.events.fireEvent("searchlane", query);
@@ -197,6 +213,35 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     text: "Close",
                     handler: function() {
                         this.laneWindow.hide();
+                    },
+                    scope: this
+                },
+                {
+                    text: "Export",
+                    handler: function() {
+                        var grid = Ext.getCmp("rva-lane-grid"),
+                            row, columns = [], data = [];
+                        for (var c=0; c < grid.getColumnModel().getColumnCount(); c++){
+                            columns.splice(-1,0,grid.getColumnModel().getDataIndex(c));
+                        }
+                        grid.getStore().each(function (record) {
+                            row = [];
+                            for (c in columns) {
+                                row.push(record.get(columns[c]));
+                            }
+                            data.push(row);
+                        });
+                        OpenLayers.Request.POST({
+                            url: GEOR.config.PATHNAME + "/ws/csv/",
+                            data: (new OpenLayers.Format.JSON()).write({
+                                columns: columns,
+                                data: data
+                            }),
+                            success: function(response) {
+                                var o = Ext.decode(response.responseText);
+                                window.location.href = GEOR.config.PATHNAME + "/" + o.filepath;
+                            }
+                        })
                     },
                     scope: this
                 }
@@ -357,6 +402,17 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     direction: "ASC"
                 }],
                 direction: 'ASC'
+            },
+            listeners: {
+                "load": {
+                    fn: function(store) {
+                        store.filter({
+                            fn: function(record) {
+                                return record.get("number") > 0;
+                            }
+                        })
+                    }
+                }
             }
         });
         return store;
@@ -389,7 +445,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 'name',
                 'name3'
             ],
-            layer: this.layer,
+            layer: this.layerLane,
             proxy: new GeoExt.data.ProtocolProxy({
                 protocol: new OpenLayers.Protocol.HTTP({
                     url: this.options.service,
@@ -482,11 +538,11 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         }
         if (this.state === "searchlane") {
             var f = record.get('feature').clone();
-            this.layer.destroyFeatures();
+            this.layerLane.destroyFeatures();
             this.popup && this.popup.destroy();
             this.map.setCenter(f.geometry.getBounds().getCenterLonLat());
-            this.layer.addFeatures([f]);
-            this.map.zoomToExtent(this.layer.getDataExtent());
+            this.layerLane.addFeatures([f]);
+            this.map.zoomToExtent(this.layerLane.getDataExtent());
 
 
             var laneGrid = Ext.getCmp("rva-lane-grid");
@@ -501,8 +557,8 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 }
             );
 
-        }
 
+        }
     },
 
 
@@ -514,7 +570,9 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         this.popup && this.popup.destroy();
         this.popup = null;
         this.map.removeLayer(this.layer);
+        this.map.removeLayer(this.layerLane);
         this.layer = null;
+        this.layerLane = null;
 
         GEOR.Addons.Base.prototype.destroy.call(this);
     }
