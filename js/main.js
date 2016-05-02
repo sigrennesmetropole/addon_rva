@@ -48,7 +48,6 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             "searchlane": {
                 fn: function(query) {
                     if (this.state !== "searchlane") {
-                        console.log("searchlane");
                         this.combo = this.combo.cloneConfig({
                             store: this._createStore("lanes"),
                             tpl: new Ext.XTemplate(
@@ -78,7 +77,6 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             "searchaddress": {
                 fn: function(query) {
                     if (this.state !== "searchaddress") {
-                        console.log("searchaddress");
                         this.combo = this.combo.cloneConfig({
                             store: this._createStore("fullAddresses"),
                             tpl: new Ext.XTemplate(
