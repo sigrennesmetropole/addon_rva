@@ -215,7 +215,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         }
                         grid.getStore().each(function(record) {
                             row = [];
-                            for (var c=0; c < columns.length; c++) {
+                            for (var c = 0; c < columns.length; c++) {
                                 row.push(record.get(columns[c]));
                             }
                             data.push(row);
@@ -271,8 +271,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
 
         if (storeType === "lanes") {
             proxyParams.cmd = "getlanes";
-            proxyParams.insee = "all"
-            ;
+            proxyParams.insee = "all";
             rvaFormat = OpenLayers.Format.RVALane;
             storeFields = [
                 'insee',
@@ -324,6 +323,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
 
             } else if (storeType == "addresses") {
                 proxyParams.cmd = "getaddresses";
+                proxyParams.insee = "all";
             }
         }
 
@@ -396,7 +396,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 buttons: [{
                     text: tr("zoom"),
                     handler: function() {
-                        this.map.zoomToExtent(this.layer.getDataExtent());
+                        this.map.zoomTo(this.options.zoomLevel);
                     },
                     scope: this
                 }]
