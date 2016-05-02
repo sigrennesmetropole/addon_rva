@@ -365,10 +365,14 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
      * Callback on combo selected
      */
     _onComboSelect: function(combo, record) {
+        var f = record.get('feature').clone();
+
+        this.layer.destroyFeatures();
+        this.layerLane.destroyFeatures();
+
+        this.popup && this.popup.destroy();
+
         if (this.state === "searchaddress") {
-            var f = record.get('feature').clone();
-            this.layer.destroyFeatures();
-            this.popup && this.popup.destroy();
             this.map.setCenter(f.geometry.getBounds().getCenterLonLat());
             this.layer.addFeatures([f]);
             this.popup = new GeoExt.Popup({
@@ -402,13 +406,9 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             this.popup.show();
         }
         if (this.state === "searchlane") {
-            var f = record.get('feature').clone();
-            this.layerLane.destroyFeatures();
-            this.popup && this.popup.destroy();
             this.map.setCenter(f.geometry.getBounds().getCenterLonLat());
             this.layerLane.addFeatures([f]);
             this.map.zoomToExtent(this.layerLane.getDataExtent());
-
 
             var laneGrid = Ext.getCmp("rva-lane-grid");
             laneGrid.getStore().load({
