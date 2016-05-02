@@ -3,7 +3,7 @@ ADDON RVA
 
 Cet [addon](https://github.com/georchestra/georchestra/blob/15.12/mapfishapp/src/main/webapp/app/addons/README.md) permet de requêter l'[API RVA de Rennes Métropole](http://rva.data.rennes-metropole.fr/) depuis le visualiseur de [geOrchestra](http://www.georchestra.org/).
 
-auteur : [@fvanderbiest](https://github.com/fvanderbiest/)
+auteurs : [@fvanderbiest](https://github.com/fvanderbiest/), [@jdenisgiguere](https://github.com/jdenisgiguere/)
 
 Compatibilité : geOrchestra >= 15.12
 
@@ -15,6 +15,7 @@ Exemple de configuration :
         "name": "RVA",
         "options": {
             "key": "xxxxxxxxxxxxxxxxxxxxxx",
+            "zoomLevel": 18,
             "minChars": 7,
             "graphicStyle": {
                 "graphicName": "star",
@@ -38,3 +39,6 @@ Exemple de configuration :
         }
     }
 ```
+
+`options.zoomLevel` permet de choisir le niveau de zoom à appliquer lorsqu'un usager clique sur le bouton `zoom` de
+la fenêtre flottante indiquant l'adresse.
