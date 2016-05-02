@@ -215,7 +215,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         }
                         grid.getStore().each(function(record) {
                             row = [];
-                            for (c in columns) {
+                            for (var c=0; c < columns.length; c++) {
                                 row.push(record.get(columns[c]));
                             }
                             data.push(row);
