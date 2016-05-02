@@ -9,12 +9,34 @@
         "target": "tabs_3",
         "service": "http://rva.data.rennes-metropole.fr/",
         "minChars": 7,
-        "graphicStyle": {
+        "laneLabelMaxScaleDenominator": 300000,
+        "addressLabelMaxScaleDenominator": 5000,
+        "laneStyle": {
+            "strokeColor": "blue",
+            "strokeWidth": 2,
+            "fillOpacity": 0,
+            "label": "${name}, ${insee}",
+            "fontColor": "blue",
+            "fontSize": 12,
+            "fontFamily": "serif",
+            "labelYOffset": "15",
+            "labelOutlineColor": "white",
+            "labelOutlineWidth": 3
+        },
+        "addressStyle": {
             "graphicName": "star",
             "pointRadius": 4,
             "strokeColor": "fuchsia",
             "strokeWidth": 2,
-            "fillOpacity": 0
+            "fillOpacity": 0,
+            "label": "${addr2}",
+            "fontColor": "fuchsia",
+            "fontSize": 10,
+            "fontFamily": "serif",
+            "labelAlign": "cc",
+            "labelYOffset": "15",
+            "labelOutlineColor": "white",
+            "labelOutlineWidth": 3
         },
         "supported_srs": [3948, 2154, 4326]
     },
