@@ -50,7 +50,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     if (this.state !== "searchlane") {
                         console.log("searchlane");
                         this.combo = this.combo.cloneConfig({
-                            store: this._createLanesStore(),
+                            store: this._createStore("lanes"),
                             tpl: new Ext.XTemplate(
                                 '<tpl for="."><div class="x-combo-list-item" ext:qtip="{values.feature.attributes.name}">',
                                 '{values.feature.attributes.name}',
@@ -80,7 +80,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     if (this.state !== "searchaddress") {
                         console.log("searchaddress");
                         this.combo = this.combo.cloneConfig({
-                            store: this._createStore(),
+                            store: this._createStore("fullAddresses"),
                             tpl: new Ext.XTemplate(
                                 '<tpl for="."><div class="x-combo-list-item" ext:qtip="{values.feature.attributes.addr3}">',
                                 '{values.feature.attributes.addr3}',
@@ -124,7 +124,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 '{values.feature.attributes.name}',
                 '</div></tpl>'
             ),
-            store: this._createLanesStore(),
+            store: this._createStore("lanes"),
             emptyText: tr("addon_rva_emptyText"),
             triggerAction: 'all',
             width: 250,
@@ -179,7 +179,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 {
                     id: "rva-lane-grid",
                     xtype: "grid",
-                    store: this._createAddressesStore(""),
+                    store: this._createStore("addresses"),
                     autoExpandColumn: "addr3",
                     columns: [
                         {id: 'insee', header: "Insee", dataIndex: "insee", width: 60},
@@ -241,9 +241,10 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
 
     /**
      * Method: _createStore
-     *
      */
-    _createStore: function() {
+    _createStore: function(storeType) {
+        var proxyCommand, proxyParams, rvaFormat, storeFields, storeSortInfo;
+
         var api_srs = null,
             formatOptions = {},
             map_srs = this.map.getProjection().split(':')[1];
@@ -260,197 +261,25 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 externalProjection: new OpenLayers.Projection("EPSG:4326")
             };
         }
-        return new GeoExt.data.FeatureStore({
-            fields: [
-                'insee',
-                {name: 'idlane', type: "int"},
-                {name: 'number', type: "int"},
-                'extension',
-                'building',
-                'addr3'
-            ],
-            layer: this.layer,
-            proxy: new GeoExt.data.ProtocolProxy({
-                protocol: new OpenLayers.Protocol.HTTP({
-                    url: this.options.service,
-                    params: {
-                        key: this.options.key,
-                        version: '1.0',
-                        format: 'json',
-                        epsg: api_srs,
-                        cmd: 'getfulladdresses'
-                    },
-                    format: new OpenLayers.Format.RVA(formatOptions)
-                })
-            }),
-            hasMultiSort: true,
-            multiSortInfo: {
-                sorters: [{
-                    field: 'insee',
-                    direction: "ASC"
-                }, {
-                    field: 'idlane',
-                    direction: "ASC"
-                }, {
-                    field: 'number',
-                    direction: "ASC"
-                }, {
-                    field: 'extension',
-                    direction: "ASC"
-                }, {
-                    field: 'building',
-                    direction: "ASC"
-                }],
-                direction: 'ASC'
-            },
-            listeners: {
-                'datachanged': function(store) {
-                    this.popup && this.popup.close();
-                    if (store.getCount() == 0) {
-                        return;
-                    }
-                    var bounds = new OpenLayers.Bounds(),
-                        records = store.getRange();
-                    Ext.each(records, function(r) {
-                        var f = r.getFeature();
-                        // copy feature attributes to record:
-                        Ext.applyIf(r.data, f.attributes);
-                        if (f.geometry) {
-                            bounds.extend(f.geometry.getBounds());
-                        }
-                    });
-                    this.map.zoomToExtent(bounds);
-                },
-                scope: this
-            }
-        });
-    },
 
-    /**
-     * Method: _createAddressesStore
-     *
-     */
-    _createAddressesStore: function(idlane) {
-        var store = null,
-            api_srs = null,
-            formatOptions = {},
-            map_srs = this.map.getProjection().split(':')[1];
-
-        if (this.options.supported_srs.indexOf(map_srs) > -1) {
-            // the API natively supports our map SRS
-            // let's use this SRS.
-            api_srs = map_srs;
-        } else {
-            // we have to reproject client side
-            api_srs = 4326;
-            formatOptions = {
-                internalProjection: new OpenLayers.Projection("EPSG:" + map_srs),
-                externalProjection: new OpenLayers.Projection("EPSG:4326")
-            };
+        proxyParams = {
+            key: this.options.key,
+            version: '1.0',
+            format: 'json',
+            epsg: api_srs,
         }
-        store = new GeoExt.data.FeatureStore({
-            fields: [
-                'insee',
-                {name: 'idlane', type: "int"},
-                {name: "idaddress", type: "int"},
-                {name: 'number', type: "int"},
-                'extension',
-                'building',
-                'addr3'
-            ],
-            layer: this.layer,
-            proxy: new GeoExt.data.ProtocolProxy({
-                protocol: new OpenLayers.Protocol.HTTP({
-                    url: this.options.service,
-                    params: {
-                        key: this.options.key,
-                        version: '1.0',
-                        format: 'json',
-                        epsg: api_srs,
-                        cmd: 'getaddresses'
-                    },
-                    format: new OpenLayers.Format.RVA(formatOptions)
-                })
-            }),
-            hasMultiSort: true,
-            multiSortInfo: {
-                sorters: [{
-                    field: 'insee',
-                    direction: "ASC"
-                }, {
-                    field: 'idlane',
-                    direction: "ASC"
-                }, {
-                    field: 'number',
-                    direction: "ASC"
-                }, {
-                    field: 'extension',
-                    direction: "ASC"
-                }, {
-                    field: 'building',
-                    direction: "ASC"
-                }],
-                direction: 'ASC'
-            },
-            listeners: {
-                "load": {
-                    fn: function(store) {
-                        store.filter({
-                            fn: function(record) {
-                                return record.get("number") > 0;
-                            }
-                        })
-                    }
-                }
-            }
-        });
-        return store;
-    },
 
-    /**
-     * Method: _createLanesStore
-     *
-     */
-    _createLanesStore: function() {
-        var api_srs = null,
-            formatOptions = {},
-            map_srs = this.map.getProjection().split(':')[1];
-
-        if (this.options.supported_srs.indexOf(map_srs) > -1) {
-            // the API natively supports our map SRS
-            // let's use this SRS.
-            api_srs = map_srs;
-        } else {
-            // we have to reproject client side
-            api_srs = 4326;
-            formatOptions = {
-                internalProjection: new OpenLayers.Projection("EPSG:" + map_srs),
-                externalProjection: new OpenLayers.Projection("EPSG:4326")
-            };
-        }
-        return new GeoExt.data.FeatureStore({
-            fields: [
+        if (storeType === "lanes") {
+            proxyParams.cmd = "getlanes";
+            proxyParams.insee = "all"
+            ;
+            rvaFormat = OpenLayers.Format.RVALane;
+            storeFields = [
                 'insee',
                 'name',
                 'name3'
-            ],
-            layer: this.layerLane,
-            proxy: new GeoExt.data.ProtocolProxy({
-                protocol: new OpenLayers.Protocol.HTTP({
-                    url: this.options.service,
-                    params: {
-                        key: this.options.key,
-                        version: '1.0',
-                        format: 'json',
-                        epsg: api_srs,
-                        insee: 'all',
-                        cmd: 'getlanes'
-                    },
-                    format: new OpenLayers.Format.RVALane(formatOptions)
-                })
-            }),
-            hasMultiSort: true,
-            multiSortInfo: {
+            ];
+            storeSortInfo = {
                 sorters: [{
                     field: 'insee',
                     direction: "ASC"
@@ -459,7 +288,57 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     direction: "ASC"
                 }],
                 direction: 'ASC'
-            },
+            }
+        } else if ((storeType === "fullAddresses") || (storeType == "addresses")) {
+            rvaFormat = OpenLayers.Format.RVA;
+            storeFields = [
+                'insee',
+                {name: 'idlane', type: "int"},
+                {name: 'number', type: "int"},
+                'extension',
+                'building',
+                'addr3'
+            ];
+            storeSortInfo = {
+                sorters: [{
+                    field: 'insee',
+                    direction: "ASC"
+                }, {
+                    field: 'idlane',
+                    direction: "ASC"
+                }, {
+                    field: 'number',
+                    direction: "ASC"
+                }, {
+                    field: 'extension',
+                    direction: "ASC"
+                }, {
+                    field: 'building',
+                    direction: "ASC"
+                }],
+                direction: 'ASC'
+            };
+
+            if (storeType === "fullAddresses") {
+                proxyParams.cmd = "getfulladdresses";
+
+            } else if (storeType == "addresses") {
+                proxyParams.cmd = "getaddresses";
+            }
+        }
+
+        return new GeoExt.data.FeatureStore({
+            fields: storeFields,
+            layer: this.layer,
+            proxy: new GeoExt.data.ProtocolProxy({
+                protocol: new OpenLayers.Protocol.HTTP({
+                    url: this.options.service,
+                    params: proxyParams,
+                    format: new rvaFormat(formatOptions)
+                })
+            }),
+            hasMultiSort: true,
+            multiSortInfo: storeSortInfo,
             listeners: {
                 'datachanged': function(store) {
                     this.popup && this.popup.close();
@@ -482,7 +361,6 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             }
         });
     },
-
 
     /**
      * Method: _onComboSelect
