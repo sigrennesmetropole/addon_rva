@@ -1,3 +1,7 @@
+/*global
+ Ext, GeoExt, OpenLayers, GEOR
+ */
+
 Ext.namespace("GEOR.Addons");
 
 GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
@@ -40,7 +44,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             })
         });
         clonedStyle = this.layerLane.styleMap.styles.default.clone();
-        clonedStyle.defaultStyle.label = null
+        clonedStyle.defaultStyle.label = null;
         this.layerLane.styleMap.styles.default.addRules([
             new OpenLayers.Rule({
                 minScaleDenominator: 0,
@@ -160,7 +164,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 "beforequery": {
                     fn: function(query) {
                         if (query.query === "") {
-                            return;
+
                         } else if (/^\d+/.test(query.query)) {
                             this.events.fireEvent("searchaddress", query);
                         } else {
@@ -191,7 +195,6 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         this.target.layout.setActiveItem(this.components);
         this.target.doLayout();
 
-        me = this;
         this.laneWindow = new Ext.Window({
             //TODO tr
             title: "Adresses sur la voie",
@@ -294,8 +297,8 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             key: this.options.key,
             version: '1.0',
             format: 'json',
-            epsg: api_srs,
-        }
+            epsg: api_srs
+        };
 
         if (storeType === "lanes") {
             storeLayer = this.layerLane;
