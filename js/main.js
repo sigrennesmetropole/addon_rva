@@ -9,20 +9,50 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
      * record - {Ext.data.record} a record with the addon parameters
      */
     init: function(record) {
-        var tr = OpenLayers.i18n;
+        var tr = OpenLayers.i18n,
+            clonedStyle;
 
         this.layer = new OpenLayers.Layer.Vector("__georchestra_rva", {
             displayInLayerSwitcher: false,
             styleMap: new OpenLayers.StyleMap({
-                "default": this.options.graphicStyle
+                "default": this.options.addressStyle
             })
         });
+        clonedStyle = this.layer.styleMap.styles.default.clone();
+        clonedStyle.defaultStyle.label = null;
+        this.layer.styleMap.styles.default.addRules([
+            new OpenLayers.Rule({
+                minScaleDenominator: 0,
+                maxScaleDenominatore: this.options.addressLabelMaxScaleDenominator,
+                symbolizer: this.layer.styleMap.styles.default.defaultStyle
+            }),
+            new OpenLayers.Rule({
+                minScaleDenominator: this.options.addressLabelMaxScaleDenominator,
+                symbolizer: clonedStyle.defaultStyle
+            })
+        ]);
+
+
         this.layerLane = new OpenLayers.Layer.Vector("__georchestra_rvaLane", {
             displayInLayerSwitcher: false,
             styleMap: new OpenLayers.StyleMap({
-                "default": this.options.graphicStyle
+                "default": this.options.laneStyle
             })
         });
+        clonedStyle = this.layerLane.styleMap.styles.default.clone();
+        clonedStyle.defaultStyle.label = null
+        this.layerLane.styleMap.styles.default.addRules([
+            new OpenLayers.Rule({
+                minScaleDenominator: 0,
+                maxScaleDenominatore: this.options.laneLabelMaxScaleDenominator,
+                symbolizer: this.layerLane.styleMap.styles.default.defaultStyle
+            }),
+            new OpenLayers.Rule({
+                minScaleDenominator: this.options.laneLabelMaxScaleDenominator,
+                symbolizer: clonedStyle.defaultStyle
+            })
+        ]);
+
         this.map.addLayer(this.layer);
         this.map.addLayer(this.layerLane);
 
@@ -241,7 +271,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
      * Method: _createStore
      */
     _createStore: function(storeType) {
-        var proxyCommand, proxyParams, rvaFormat, storeFields, storeSortInfo;
+        var storeLayer, proxyParams, rvaFormat, storeFields, storeSortInfo;
 
         var api_srs = null,
             formatOptions = {},
@@ -268,6 +298,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         }
 
         if (storeType === "lanes") {
+            storeLayer = this.layerLane;
             proxyParams.cmd = "getlanes";
             proxyParams.insee = "all";
             rvaFormat = OpenLayers.Format.RVALane;
@@ -287,6 +318,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 direction: 'ASC'
             }
         } else if ((storeType === "fullAddresses") || (storeType == "addresses")) {
+            storeLayer = this.layer;
             rvaFormat = OpenLayers.Format.RVA;
             storeFields = [
                 'insee',
@@ -327,7 +359,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
 
         return new GeoExt.data.FeatureStore({
             fields: storeFields,
-            layer: this.layer,
+            layer: storeLayer,
             proxy: new GeoExt.data.ProtocolProxy({
                 protocol: new OpenLayers.Protocol.HTTP({
                     url: this.options.service,
