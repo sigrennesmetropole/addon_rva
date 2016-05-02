@@ -17,13 +17,35 @@ Exemple de configuration :
             "key": "xxxxxxxxxxxxxxxxxxxxxx",
             "zoomLevel": 18,
             "minChars": 7,
-            "graphicStyle": {
+            "laneLabelMaxScaleDenominator": 300000,
+            "addressLabelMaxScaleDenominator": 5000,
+            "laneStyle": {
+                "strokeColor": "blue",
+                "strokeWidth": 2,
+                "fillOpacity": 0,
+                "label": "${name3}",
+                "fontColor": "blue",
+                "fontSize": 12,
+                "fontFamily": "serif",
+                "labelYOffset": "15",
+                "labelOutlineColor": "white",
+                "labelOutlineWidth": 3
+            },
+            "addressStyle": {
                 "graphicName": "star",
                 "pointRadius": 4,
                 "strokeColor": "fuchsia",
                 "strokeWidth": 2,
-                "fillOpacity": 0
-            }
+                "fillOpacity": 0,
+                "label": "${addr2}",
+                "fontColor": "fuchsia",
+                "fontSize": 10,
+                "fontFamily": "serif",
+                "labelAlign": "cc",
+                "labelYOffset": "15",
+                "labelOutlineColor": "white",
+                "labelOutlineWidth": 3
+            },
         },
         "title": {
             "en": "RVA",
