@@ -26,7 +26,11 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         this.map.addLayer(this.layer);
         this.map.addLayer(this.layerLane);
 
-        this.state = "searchaddress";
+        /**
+         * By default, the combobox is looking for lane
+         * @type {string}
+         */
+        this.state = "searchlane";
 
         this.events = new Ext.util.Observable();
 
@@ -131,11 +135,11 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             queryDelay: 100,
             displayField: "addr3",
             tpl: new Ext.XTemplate(
-                '<tpl for="."><div class="x-combo-list-item" ext:qtip="{values.feature.attributes.addr3}">',
-                '{values.feature.attributes.addr3}',
+                '<tpl for="."><div class="x-combo-list-item" ext:qtip="{values.feature.attributes.name}">',
+                '{values.feature.attributes.name}',
                 '</div></tpl>'
             ),
-            store: this._createStore(),
+            store: this._createLanesStore(),
             emptyText: tr("addon_rva_emptyText"),
             triggerAction: 'all',
             width: 250,
@@ -221,10 +225,10 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     handler: function() {
                         var grid = Ext.getCmp("rva-lane-grid"),
                             row, columns = [], data = [];
-                        for (var c=0; c < grid.getColumnModel().getColumnCount(); c++){
-                            columns.splice(-1,0,grid.getColumnModel().getDataIndex(c));
+                        for (var c = 0; c < grid.getColumnModel().getColumnCount(); c++) {
+                            columns.splice(-1, 0, grid.getColumnModel().getDataIndex(c));
                         }
-                        grid.getStore().each(function (record) {
+                        grid.getStore().each(function(record) {
                             row = [];
                             for (c in columns) {
                                 row.push(record.get(columns[c]));
