@@ -44,21 +44,6 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
          */
         this.events.addEvents("searchaddress");
 
-        /**
-         * We are not looking for anything
-         */
-        this.events.addEvents("searchnoting");
-
-        /**
-         * We selected a lane
-         */
-        this.events.addEvents("laneselected");
-
-        /**
-         * We selected an address
-         */
-        this.events.addEvents("adressselected");
-
         this.events.on({
             "searchlane": {
                 fn: function(query) {
