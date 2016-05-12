@@ -6,7 +6,7 @@
     ],
     "default_options": {
         "zoomLevel": 18,
-        "target": "tabs_3",
+        "target": "tbar_2",
         "service": "http://rva.data.rennes-metropole.fr/",
         "minChars": 7,
         "laneLabelMaxScaleDenominator": 300000,

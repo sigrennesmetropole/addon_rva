@@ -17,6 +17,7 @@ Exemple de configuration :
             "key": "xxxxxxxxxxxxxxxxxxxxxx",
             "zoomLevel": 18,
             "minChars": 7,
+            "target": "tbar_10",
             "laneLabelMaxScaleDenominator": 300000,
             "addressLabelMaxScaleDenominator": 5000,
             "laneStyle": {
@@ -64,3 +65,7 @@ Exemple de configuration :
 
 `options.zoomLevel` permet de choisir le niveau de zoom à appliquer lorsqu'un usager clique sur le bouton `zoom` de
 la fenêtre flottante indiquant l'adresse.
+
+`options.target` permet de placer la barre de recherche soit dans la barre d'outils ( ex. "tbar_10" pour avoir la barre
+de recherche à la 11e position de la barre) ou encore dans le panneau à onglet (ex. tabs_2 pour avoir la barre de
+recherche dans le 3e onglet).
