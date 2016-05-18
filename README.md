@@ -51,7 +51,7 @@ Exemple de configuration :
             "en": "RVA",
             "fr": "RVA",
             "es": "RVA",
-            "de": "RVA",
+            "de": "RVA"
         },
         "description": {
             "en": "...",
