@@ -45,7 +45,7 @@ Exemple de configuration :
                 "labelYOffset": "15",
                 "labelOutlineColor": "white",
                 "labelOutlineWidth": 3
-            },
+            }
         },
         "title": {
             "en": "RVA",
