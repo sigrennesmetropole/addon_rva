@@ -5,7 +5,6 @@
         "js/main.js"
     ],
     "default_options": {
-        "zoomLevel": 18,
         "target": "tabs_3",
         "zoomLevel": 18,
         "service": "http://rva.data.rennes-metropole.fr/",
