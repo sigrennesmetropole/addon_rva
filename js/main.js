@@ -4,6 +4,13 @@
 
 Ext.namespace("GEOR.Addons");
 
+/**
+ * GEOR.Addons.RVA - Search in Rennees Métropole Référentiel Voies et Adresses (RVA)
+ *
+ * Layout of the search box is dependant of its location. Pleas use the target config option carefully
+ * supported target are "tabs_n" and "tbar_n" where n is a number indicating the tab number or the position in the
+ * toolbar.
+ */
 GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
 
     /**
@@ -91,16 +98,16 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                             )
                         });
                         this.components.destroy();
-                        this.components = this.target.insert(this.position, {
-                            xtype: 'form',
-                            bodyStyle: 'padding: 1.5em;',
-                            title: tr("addon_rva_tabTitle"),
-                            labelWidth: 1,
-                            items: this.combo
-                        });
-                        this.target.setActiveTab(2);
+
+                        if (this.target.getXType() === "toolbar") {
+                            this.components = this.target.insert(this.position, this.createToolbarComponent());
+                        } else if (this.target.getXType() === "tabpanel") {
+                            this.components = this.target.insert(this.position, this.createTabpanelComponent());
+                            this.target.setActiveTab(this.position);
+                        }
+                        this.target.doLayout();
                         this.combo.setValue(query.query);
-                        this.combo.focus(false);
+                        this.combo.focus(false, 0);
                     }
                     this.state = "searchlane";
 
@@ -120,16 +127,16 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                             )
                         });
                         this.components.destroy();
-                        this.components = this.target.insert(this.position, {
-                            xtype: 'form',
-                            bodyStyle: 'padding: 1.5em;',
-                            title: tr("addon_rva_tabTitle"),
-                            labelWidth: 1,
-                            items: this.combo
-                        });
-                        this.target.setActiveTab(2);
+
+                        if (this.target.getXType() === "toolbar") {
+                            this.components = this.target.insert(this.position, this.createToolbarComponent());
+                        } else if (this.target.getXType() === "tabpanel") {
+                            this.components = this.target.insert(this.position, this.createTabpanelComponent());
+                            this.target.setActiveTab(this.position);
+                        }
+                        this.target.doLayout();
                         this.combo.setValue(query.query);
-                        this.combo.focus(false);
+                        this.combo.focus(false, 0);
 
                     }
                     this.state = "searchaddress";
@@ -184,15 +191,16 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 scope: this
             }
         });
-        this.components = this.target.insert(this.position, {
-            xtype: 'form',
-            bodyStyle: 'padding: 1.5em;',
-            title: tr("addon_rva_tabTitle"),
-            labelWidth: 1,
-            items: this.combo
-        });
+
         // switch to this new tab:
-        this.target.layout.setActiveItem(this.components);
+        if (this.target.getXType() == "toolbar") {
+            this.components = this.target.insert(this.position, this.createToolbarComponent());
+        }
+        if (this.target.getXType() === "tabpanel") {
+            this.components = this.target.insert(this.position, this.createTabpanelComponent());
+            this.target.layout.setActiveItem(this.components);
+        }
+
         this.target.doLayout();
 
         this.laneWindow = new Ext.Window({
@@ -459,6 +467,35 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
 
 
         }
+    },
+
+    createToolbarComponent: function() {
+        return {
+            xtype: 'panel',
+            layout: "hbox",
+            layoutConfig: {
+                pack: "start",
+                align: "middle",
+            },
+            width: "300px",
+            bodyStyle: 'background-color: #f0f0f0',
+            items: [{
+                xtype: "label",
+                text: "RVA :",
+                style: "padding: 4px 8px 0px 6px;"
+            },
+                this.combo]
+        };
+    },
+
+    createTabpanelComponent: function() {
+        return {
+            xtype: 'form',
+            bodyStyle: 'padding: 1.5em;',
+            title: tr("addon_rva_tabTitle"),
+            labelWidth: 1,
+            items: this.combo
+        };
     },
 
 
