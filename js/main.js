@@ -100,7 +100,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         this.components.destroy();
 
                         if (this.target.getXType() === "toolbar") {
-                            this.components = this.target.insert(this.position, this.createToolbarComponent());
+                            this.components = this.target.insertButton(this.position, this.createToolbarComponent());
                         } else if (this.target.getXType() === "tabpanel") {
                             this.components = this.target.insert(this.position, this.createTabpanelComponent());
                             this.target.setActiveTab(this.position);
@@ -129,7 +129,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         this.components.destroy();
 
                         if (this.target.getXType() === "toolbar") {
-                            this.components = this.target.insert(this.position, this.createToolbarComponent());
+                            this.components = this.target.insertButton(this.position, this.createToolbarComponent());
                         } else if (this.target.getXType() === "tabpanel") {
                             this.components = this.target.insert(this.position, this.createTabpanelComponent());
                             this.target.setActiveTab(this.position);
@@ -194,7 +194,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
 
         // switch to this new tab:
         if (this.target.getXType() == "toolbar") {
-            this.components = this.target.insert(this.position, this.createToolbarComponent());
+            this.components = this.target.insertButton(this.position, this.createToolbarComponent());
         }
         if (this.target.getXType() === "tabpanel") {
             this.components = this.target.insert(this.position, this.createTabpanelComponent());
@@ -204,8 +204,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         this.target.doLayout();
 
         this.laneWindow = new Ext.Window({
-            //TODO tr
-            title: "Adresses sur la voie",
+            title: "Adresses dans la voie",
             layout: "table",
             layoutConfig: {
                 columns: 1
@@ -221,12 +220,12 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     store: this._createStore("addresses"),
                     autoExpandColumn: "addr3",
                     columns: [
-                        {id: 'insee', header: "Insee", dataIndex: "insee", width: 60},
-                        {id: "idaddres", header: "Idaddress", dataIndex: "idaddress", width: 60},
-                        {id: "number", header: "Num.", dataIndex: "number", width: 40},
-                        {id: 'extension', header: "Ext", dataIndex: "extension", width: 40},
-                        {id: 'building', header: "Bât", dataIndex: "building", width: 40},
-                        {id: 'addr3', header: "Adresse", dataIndex: "addr3"}
+                        {id: 'insee', header: "insee", dataIndex: "insee", width: 60},
+                        {id: "idaddres", header: "id address", dataIndex: "idaddress", width: 70},
+                        {id: "number", header: "num", dataIndex: "number", width: 40},
+                        {id: 'extension', header: "ext", dataIndex: "extension", width: 40},
+                        {id: 'building', header: "bât", dataIndex: "building", width: 40},
+                        {id: 'addr3', header: "adresse complète", dataIndex: "addr3"}
                     ],
                     sm: new GeoExt.grid.FeatureSelectionModel({
                         autoPanMapOnSelection: true
@@ -238,19 +237,13 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             ],
             buttons: [
                 {
-                    text: "Close",
-                    handler: function() {
-                        this.laneWindow.hide();
-                    },
-                    scope: this
-                },
-                {
-                    text: "Export",
+                    text: "Exporter",
                     handler: function() {
                         var grid = Ext.getCmp("rva-lane-grid"),
                             row, columns = [], data = [];
                         for (var c = 0; c < grid.getColumnModel().getColumnCount(); c++) {
                             columns.splice(-1, 0, grid.getColumnModel().getDataIndex(c));
+                            columnsName = ["id_adr", "numero", "extension", "batiment", "adr_complete", "insee"];
                         }
                         grid.getStore().each(function(record) {
                             row = [];
@@ -262,7 +255,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         OpenLayers.Request.POST({
                             url: GEOR.config.PATHNAME + "/ws/csv/",
                             data: (new OpenLayers.Format.JSON()).write({
-                                columns: columns,
+                                columns: columnsName,
                                 data: data
                             }),
                             success: function(response) {
@@ -272,7 +265,14 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         })
                     },
                     scope: this
-                }
+                },
+                {
+                    text: "Fermer",
+                    handler: function() {
+                        this.laneWindow.hide();
+                    },
+                    scope: this
+                },
             ]
 
         });
@@ -471,21 +471,23 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
 
     createToolbarComponent: function() {
         return {
-            xtype: 'panel',
-            layout: "hbox",
-            layoutConfig: {
-                pack: "start",
-                align: "middle",
+            xtype: "container",
+            layout: "column",
+            defaults: {
+                anchor: "right"
             },
-            width: "300px",
-            bodyStyle: 'background-color: #f0f0f0',
-            items: [{
-                xtype: "label",
-                text: "RVA :",
-                style: "padding: 4px 8px 0px 6px;"
-            },
-                this.combo]
-        };
+            items: [
+                {xtype: "tbseparator"},
+                {
+                    xtype: "label",
+                    text: "RVA :",
+                    style: "margin: 5px 10px",
+                    witdh: "80 px"
+                },
+                this.combo,
+                {xtype: "tbseparator"}
+            ]
+        }
     },
 
     createTabpanelComponent: function() {
