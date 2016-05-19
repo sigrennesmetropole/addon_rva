@@ -100,7 +100,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         this.components.destroy();
 
                         if (this.target.getXType() === "toolbar") {
-                            this.components = this.target.insert(this.position, this.createToolbarComponent());
+                            this.components = this.target.insertButton(this.position, this.createToolbarComponent());
                         } else if (this.target.getXType() === "tabpanel") {
                             this.components = this.target.insert(this.position, this.createTabpanelComponent());
                             this.target.setActiveTab(this.position);
@@ -129,7 +129,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         this.components.destroy();
 
                         if (this.target.getXType() === "toolbar") {
-                            this.components = this.target.insert(this.position, this.createToolbarComponent());
+                            this.components = this.target.insertButton(this.position, this.createToolbarComponent());
                         } else if (this.target.getXType() === "tabpanel") {
                             this.components = this.target.insert(this.position, this.createTabpanelComponent());
                             this.target.setActiveTab(this.position);
@@ -194,7 +194,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
 
         // switch to this new tab:
         if (this.target.getXType() == "toolbar") {
-            this.components = this.target.insert(this.position, this.createToolbarComponent());
+            this.components = this.target.insertButton(this.position, this.createToolbarComponent());
         }
         if (this.target.getXType() === "tabpanel") {
             this.components = this.target.insert(this.position, this.createTabpanelComponent());
@@ -470,22 +470,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
     },
 
     createToolbarComponent: function() {
-        return {
-            xtype: 'panel',
-            layout: "hbox",
-            layoutConfig: {
-                pack: "start",
-                align: "middle",
-            },
-            width: "300px",
-            bodyStyle: 'background-color: #f0f0f0',
-            items: [{
-                xtype: "label",
-                text: "RVA :",
-                style: "padding: 4px 8px 0px 6px;"
-            },
-                this.combo]
-        };
+        return ["-", "RVA:", this.combo, "-"];
     },
 
     createTabpanelComponent: function() {
