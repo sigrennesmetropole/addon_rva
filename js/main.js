@@ -470,7 +470,23 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
     },
 
     createToolbarComponent: function() {
-        return ["-", "RVA:", this.combo, "-"];
+        return {
+            xtype: "container",
+            layout: "column",
+            defaults: {
+                anchor: "right"
+            },
+            items: [
+                {xtype:"tbseparator"},
+                {
+                    xtype: "label",
+                    text: "RVA :",
+                    style: "margin: 5px 10px",
+                    witdh: "80 px"
+                },
+                this.combo,
+                {xtype:"tbseparator"}
+            ]}
     },
 
     createTabpanelComponent: function() {
