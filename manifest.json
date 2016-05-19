@@ -44,22 +44,22 @@
         "en": {
             "addon_rva_emptyText": "Quick search...",
             "addon_rva_tabTitle": "RVA",
-            "addon_rva_searchTip": "Recherche rapide d'une adresse"
+            "addon_rva_searchTip": "Recherche d'une adresse ou d'une voie sur le Référentiel Voies et Adresse métropolitain"
         },
         "es": {
             "addon_rva_emptyText": "Búsqueda rápida...",
             "addon_rva_tabTitle": "RVA",
-            "addon_rva_searchTip": "Recherche rapide d'une adresse"
+            "addon_rva_searchTip": "Recherche d'une adresse ou d'une voie sur le Référentiel Voies et Adresse métropolitain"
         },
         "fr": {
             "addon_rva_emptyText": "Cherchez une adresse...",
             "addon_rva_tabTitle": "RVA",
-            "addon_rva_searchTip": "Recherche rapide d'une adresse"
+            "addon_rva_searchTip": "Recherche d'une adresse ou d'une voie sur le Référentiel Voies et Adresse métropolitain"
         },
         "de": {
             "addon_rva_emptyText": "Suchen...",
             "addon_rva_tabTitle": "RVA",
-            "addon_rva_searchTip": "Recherche rapide d'une adresse"
+            "addon_rva_searchTip": "Recherche d'une adresse ou d'une voie sur le Référentiel Voies et Adresse métropolitain"
         }
     }
 }
