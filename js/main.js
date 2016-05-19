@@ -243,6 +243,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                             row, columns = [], data = [];
                         for (var c = 0; c < grid.getColumnModel().getColumnCount(); c++) {
                             columns.splice(-1, 0, grid.getColumnModel().getDataIndex(c));
+                            columnsName = ["id_adr", "numero", "extension", "batiment", "adr_complete", "insee"];
                         }
                         grid.getStore().each(function(record) {
                             row = [];
@@ -254,7 +255,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         OpenLayers.Request.POST({
                             url: GEOR.config.PATHNAME + "/ws/csv/",
                             data: (new OpenLayers.Format.JSON()).write({
-                                columns: columns,
+                                columns: columnsName,
                                 data: data
                             }),
                             success: function(response) {
