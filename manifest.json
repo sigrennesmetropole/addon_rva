@@ -29,7 +29,7 @@
             "strokeColor": "fuchsia",
             "strokeWidth": 2,
             "fillOpacity": 0,
-            "label": "${addr2}",
+            "label": "${addr1}",
             "fontColor": "fuchsia",
             "fontSize": 10,
             "fontFamily": "serif",
