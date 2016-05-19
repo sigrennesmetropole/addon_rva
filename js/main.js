@@ -204,8 +204,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
         this.target.doLayout();
 
         this.laneWindow = new Ext.Window({
-            //TODO tr
-            title: "Adresses sur la voie",
+            title: "Adresses dans la voie",
             layout: "table",
             layoutConfig: {
                 columns: 1
@@ -221,12 +220,12 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     store: this._createStore("addresses"),
                     autoExpandColumn: "addr3",
                     columns: [
-                        {id: 'insee', header: "Insee", dataIndex: "insee", width: 60},
-                        {id: "idaddres", header: "Idaddress", dataIndex: "idaddress", width: 60},
-                        {id: "number", header: "Num.", dataIndex: "number", width: 40},
-                        {id: 'extension', header: "Ext", dataIndex: "extension", width: 40},
-                        {id: 'building', header: "Bât", dataIndex: "building", width: 40},
-                        {id: 'addr3', header: "Adresse", dataIndex: "addr3"}
+                        {id: 'insee', header: "insee", dataIndex: "insee", width: 60},
+                        {id: "idaddres", header: "id address", dataIndex: "idaddress", width: 70},
+                        {id: "number", header: "num", dataIndex: "number", width: 40},
+                        {id: 'extension', header: "ext", dataIndex: "extension", width: 40},
+                        {id: 'building', header: "bât", dataIndex: "building", width: 40},
+                        {id: 'addr3', header: "adresse complète", dataIndex: "addr3"}
                     ],
                     sm: new GeoExt.grid.FeatureSelectionModel({
                         autoPanMapOnSelection: true
@@ -238,14 +237,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             ],
             buttons: [
                 {
-                    text: "Close",
-                    handler: function() {
-                        this.laneWindow.hide();
-                    },
-                    scope: this
-                },
-                {
-                    text: "Export",
+                    text: "Exporter",
                     handler: function() {
                         var grid = Ext.getCmp("rva-lane-grid"),
                             row, columns = [], data = [];
@@ -272,7 +264,14 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         })
                     },
                     scope: this
-                }
+                },
+                {
+                    text: "Fermer",
+                    handler: function() {
+                        this.laneWindow.hide();
+                    },
+                    scope: this
+                },
             ]
 
         });
@@ -477,7 +476,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 anchor: "right"
             },
             items: [
-                {xtype:"tbseparator"},
+                {xtype: "tbseparator"},
                 {
                     xtype: "label",
                     text: "RVA :",
@@ -485,8 +484,9 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     witdh: "80 px"
                 },
                 this.combo,
-                {xtype:"tbseparator"}
-            ]}
+                {xtype: "tbseparator"}
+            ]
+        }
     },
 
     createTabpanelComponent: function() {
