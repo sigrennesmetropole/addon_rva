@@ -4,9 +4,6 @@
         "js/OpenLayers.Protocol.HTTP.js",
         "js/main.js"
     ],
-    "css": [
-        "css/main.css"
-    ],
     "default_options": {
         "target": "tbar_3",
         "zoomLevel": 18,
