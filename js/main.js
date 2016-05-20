@@ -89,25 +89,42 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             "searchlane": {
                 fn: function(query) {
                     if (this.state !== "searchlane") {
-                        this.combo = this.combo.cloneConfig({
-                            store: this._createStore("lanes"),
-                            tpl: new Ext.XTemplate(
-                                '<tpl for="."><div class="x-combo-list-item" ext:qtip="{values.feature.attributes.name}">',
-                                '{values.feature.attributes.name}',
-                                '</div></tpl>'
-                            )
-                        });
-                        this.components.destroy();
+                        var api_srs = null,
+                            formatOptions = {},
+                            map_srs = this.map.getProjection().split(':')[1],
+                            rvaFormat = OpenLayers.Format.RVALane;
 
-                        if (this.target.getXType() === "toolbar") {
-                            this.components = this.target.insertButton(this.position, this.createToolbarComponent());
-                        } else if (this.target.getXType() === "tabpanel") {
-                            this.components = this.target.insert(this.position, this.createTabpanelComponent());
-                            this.target.setActiveTab(this.position);
+                        if (this.options.supported_srs.indexOf(map_srs) > -1) {
+                            // the API natively supports our map SRS
+                            // let's use this SRS.
+                            api_srs = map_srs;
+                        } else {
+                            // we have to reproject client side
+                            api_srs = 4326;
+                            formatOptions = {
+                                internalProjection: new OpenLayers.Projection("EPSG:" + map_srs),
+                                externalProjection: new OpenLayers.Projection("EPSG:4326")
+                            };
                         }
-                        this.target.doLayout();
-                        this.combo.setValue(query.query);
-                        this.combo.focus(false, 0);
+
+                        var proxyParams = {
+                            key: this.options.key,
+                            version: '1.0',
+                            format: 'json',
+                            epsg: api_srs
+                        };
+
+                        proxyParams.cmd = "getlanes";
+                        proxyParams.insee = "all";
+
+                        this.combo.getStore().layer = this.layerLane;
+                        this.combo.getStore().proxy = new GeoExt.data.ProtocolProxy({
+                            protocol: new OpenLayers.Protocol.HTTP({
+                                url: this.options.service,
+                                params: proxyParams,
+                                format: new rvaFormat(formatOptions)
+                            })
+                        });
                     }
                     this.state = "searchlane";
 
@@ -118,25 +135,42 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             "searchaddress": {
                 fn: function(query) {
                     if (this.state !== "searchaddress") {
-                        this.combo = this.combo.cloneConfig({
-                            store: this._createStore("fullAddresses"),
-                            tpl: new Ext.XTemplate(
-                                '<tpl for="."><div class="x-combo-list-item" ext:qtip="{values.feature.attributes.addr3}">',
-                                '{values.feature.attributes.addr3}',
-                                '</div></tpl>'
-                            )
-                        });
-                        this.components.destroy();
 
-                        if (this.target.getXType() === "toolbar") {
-                            this.components = this.target.insertButton(this.position, this.createToolbarComponent());
-                        } else if (this.target.getXType() === "tabpanel") {
-                            this.components = this.target.insert(this.position, this.createTabpanelComponent());
-                            this.target.setActiveTab(this.position);
+                        var api_srs = null,
+                            formatOptions = {},
+                            map_srs = this.map.getProjection().split(':')[1],
+                            rvaFormat = OpenLayers.Format.RVA;
+
+                        if (this.options.supported_srs.indexOf(map_srs) > -1) {
+                            // the API natively supports our map SRS
+                            // let's use this SRS.
+                            api_srs = map_srs;
+                        } else {
+                            // we have to reproject client side
+                            api_srs = 4326;
+                            formatOptions = {
+                                internalProjection: new OpenLayers.Projection("EPSG:" + map_srs),
+                                externalProjection: new OpenLayers.Projection("EPSG:4326")
+                            };
                         }
-                        this.target.doLayout();
-                        this.combo.setValue(query.query);
-                        this.combo.focus(false, 0);
+
+                        var proxyParams = {
+                            key: this.options.key,
+                            version: '1.0',
+                            format: 'json',
+                            epsg: api_srs
+                        };
+
+                        proxyParams.cmd = "getfulladdresses";
+
+                        this.combo.getStore().layer = this.layer;
+                        this.combo.getStore().proxy = new GeoExt.data.ProtocolProxy({
+                            protocol: new OpenLayers.Protocol.HTTP({
+                                url: this.options.service,
+                                params: proxyParams,
+                                format: new rvaFormat(formatOptions)
+                            })
+                        });
 
                     }
                     this.state = "searchaddress";
@@ -159,9 +193,18 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             queryDelay: 100,
             displayField: "addr3",
             tpl: new Ext.XTemplate(
-                '<tpl for="."><div class="x-combo-list-item" ext:qtip="{values.feature.attributes.name}">',
-                '{values.feature.attributes.name}',
-                '</div></tpl>'
+                '<tpl for=".">',
+                '    <tpl if="values.idaddress == 0">',
+                '        <div class="x-combo-list-item" ext:qtip="{values.feature.attributes.addr3}">',
+                '            {values.name}',
+                '        </div>',
+                '    </tpl>', //end if cmd==getfulladdresses
+                '    <tpl if="values.idaddress != 0">',
+                '        <div class="x-combo-list-item" ext:qtip="{values.feature.attributes.addr3}">',
+                '            {values.addr3}',
+                '        </div>',
+                '    </tpl>', //end if cmd==getfulladdresses
+                '</tpl>'
             ),
             store: this._createStore("lanes"),
             emptyText: tr("addon_rva_emptyText"),
@@ -221,7 +264,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     autoExpandColumn: "addr3",
                     columns: [
                         {id: 'insee', header: "insee", dataIndex: "insee", width: 60},
-                        {id: "idaddres", header: "id address", dataIndex: "idaddress", width: 70},
+                        {id: "idaddress", header: "id addresse", dataIndex: "idaddress", width: 70},
                         {id: "number", header: "num", dataIndex: "number", width: 40},
                         {id: 'extension', header: "ext", dataIndex: "extension", width: 40},
                         {id: 'building', header: "bât", dataIndex: "building", width: 40},
@@ -240,10 +283,10 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     text: "Exporter",
                     handler: function() {
                         var grid = Ext.getCmp("rva-lane-grid"),
+                            columnsName = ["id_adr", "numero", "extension", "batiment", "adr_complete", "insee"],
                             row, columns = [], data = [];
                         for (var c = 0; c < grid.getColumnModel().getColumnCount(); c++) {
                             columns.splice(-1, 0, grid.getColumnModel().getDataIndex(c));
-                            columnsName = ["id_adr", "numero", "extension", "batiment", "adr_complete", "insee"];
                         }
                         grid.getStore().each(function(record) {
                             row = [];
@@ -280,6 +323,9 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
 
     /**
      * Method: _createStore
+     *
+     * This will create a store of type : "lanes", "fullAddresses" or "addresses"
+     *
      */
     _createStore: function(storeType) {
         var storeLayer, proxyParams, rvaFormat, storeFields, storeSortInfo;
@@ -308,56 +354,52 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             epsg: api_srs
         };
 
+        storeFields = [
+            //common fields
+            'insee',
+            //lanes related fields
+            'name',
+            'name3',
+            //address related fields
+            {name: "idaddress", type: "int"},
+            {name: 'idlane', type: "int"},
+            {name: 'number', type: "int"},
+            'extension',
+            'building',
+            'addr3'
+
+        ];
+        storeSortInfo = {
+            sorters: [{
+                field: 'insee',
+                direction: "ASC"
+            }, {
+                field: 'name3',
+                direction: "ASC"
+            }, {
+                field: 'idlane',
+                direction: "ASC"
+            }, {
+                field: 'number',
+                direction: "ASC"
+            }, {
+                field: 'extension',
+                direction: "ASC"
+            }, {
+                field: 'building',
+                direction: "ASC"
+            }],
+            direction: 'ASC'
+        }
+
         if (storeType === "lanes") {
             storeLayer = this.layerLane;
             proxyParams.cmd = "getlanes";
             proxyParams.insee = "all";
             rvaFormat = OpenLayers.Format.RVALane;
-            storeFields = [
-                'insee',
-                'name',
-                'name3'
-            ];
-            storeSortInfo = {
-                sorters: [{
-                    field: 'insee',
-                    direction: "ASC"
-                }, {
-                    field: 'name3',
-                    direction: "ASC"
-                }],
-                direction: 'ASC'
-            }
         } else if ((storeType === "fullAddresses") || (storeType == "addresses")) {
             storeLayer = this.layer;
             rvaFormat = OpenLayers.Format.RVA;
-            storeFields = [
-                'insee',
-                {name: 'idlane', type: "int"},
-                {name: 'number', type: "int"},
-                'extension',
-                'building',
-                'addr3'
-            ];
-            storeSortInfo = {
-                sorters: [{
-                    field: 'insee',
-                    direction: "ASC"
-                }, {
-                    field: 'idlane',
-                    direction: "ASC"
-                }, {
-                    field: 'number',
-                    direction: "ASC"
-                }, {
-                    field: 'extension',
-                    direction: "ASC"
-                }, {
-                    field: 'building',
-                    direction: "ASC"
-                }],
-                direction: 'ASC'
-            };
 
             if (storeType === "fullAddresses") {
                 proxyParams.cmd = "getfulladdresses";
@@ -381,7 +423,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             hasMultiSort: true,
             multiSortInfo: storeSortInfo,
             listeners: {
-                'datachanged': function(store) {
+                "datachanged": function(store) {
                     this.popup && this.popup.close();
                     if (store.getCount() == 0) {
                         return;
@@ -397,6 +439,13 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         }
                     });
                     this.map.zoomToExtent(bounds);
+                },
+                "load": function(store, records, options) {
+                    Ext.each(records, function(record) {
+                        record.set("name", GEOR.util.stringReplaceCharCodes(record.get("name")));
+                        record.set("name3", GEOR.util.stringReplaceCharCodes(record.get("name3")));
+                        record.set("addr3", GEOR.util.stringReplaceCharCodes(record.get("addr3")));
+                    });
                 },
                 scope: this
             }
