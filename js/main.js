@@ -274,8 +274,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         autoPanMapOnSelection: true
                     }),
                     width: 520,
-                    height: 520,
-                    frame: true
+                    height: 520
                 }
             ],
             buttons: [
