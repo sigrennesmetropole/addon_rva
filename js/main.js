@@ -248,10 +248,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
 
         this.laneWindow = new Ext.Window({
             title: "Adresses dans la voie",
-            layout: "table",
-            layoutConfig: {
-                columns: 1
-            },
+            layout: "fit",
             width: 540,
             autoHeight: true,
             closable: true,
@@ -260,6 +257,9 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 {
                     id: "rva-lane-grid",
                     xtype: "grid",
+                    viewConfig: {
+                        markDirty: false
+                    },
                     store: this._createStore("addresses"),
                     autoExpandColumn: "addr3",
                     columns: [
