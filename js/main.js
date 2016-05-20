@@ -264,7 +264,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     autoExpandColumn: "addr3",
                     columns: [
                         {id: 'insee', header: "insee", dataIndex: "insee", width: 60},
-                        {id: "idaddres", header: "id address", dataIndex: "idaddress", width: 70},
+                        {id: "idaddress", header: "id addresse", dataIndex: "idaddress", width: 70},
                         {id: "number", header: "num", dataIndex: "number", width: 40},
                         {id: 'extension', header: "ext", dataIndex: "extension", width: 40},
                         {id: 'building', header: "bât", dataIndex: "building", width: 40},
@@ -423,7 +423,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             hasMultiSort: true,
             multiSortInfo: storeSortInfo,
             listeners: {
-                'datachanged': function(store) {
+                "datachanged": function(store) {
                     this.popup && this.popup.close();
                     if (store.getCount() == 0) {
                         return;
@@ -439,6 +439,13 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         }
                     });
                     this.map.zoomToExtent(bounds);
+                },
+                "load": function(store, records, options) {
+                    Ext.each(records, function(record) {
+                        record.set("name", GEOR.util.stringReplaceCharCodes(record.get("name")));
+                        record.set("name3", GEOR.util.stringReplaceCharCodes(record.get("name3")));
+                        record.set("addr3", GEOR.util.stringReplaceCharCodes(record.get("addr3")));
+                    });
                 },
                 scope: this
             }
