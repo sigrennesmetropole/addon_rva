@@ -257,7 +257,6 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 {
                     id: "rva-lane-grid",
                     xtype: "grid",
-                    style: "rva-lane-grid",
                     store: this._createStore("addresses"),
                     autoExpandColumn: "addr3",
                     columns: [
