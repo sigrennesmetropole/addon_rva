@@ -359,13 +359,17 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             'insee',
             //lanes related fields
             'name',
+            'name2',
             'name3',
+            'nameindex',
             //address related fields
             {name: "idaddress", type: "int"},
             {name: 'idlane', type: "int"},
             {name: 'number', type: "int"},
             'extension',
             'building',
+            'addr1',
+            'addr2',
             'addr3'
 
         ];
@@ -443,7 +447,11 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 "load": function(store, records, options) {
                     Ext.each(records, function(record) {
                         record.set("name", GEOR.util.stringReplaceCharCodes(record.get("name")));
+                        record.set("name2", GEOR.util.stringReplaceCharCodes(record.get("name2")));
                         record.set("name3", GEOR.util.stringReplaceCharCodes(record.get("name3")));
+                        record.set("nameindex", GEOR.util.stringReplaceCharCodes(record.get("nameindex")));
+                        record.set("addr1", GEOR.util.stringReplaceCharCodes(record.get("addr1")));
+                        record.set("addr2", GEOR.util.stringReplaceCharCodes(record.get("addr2")));
                         record.set("addr3", GEOR.util.stringReplaceCharCodes(record.get("addr3")));
                     });
                 },
