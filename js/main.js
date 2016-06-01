@@ -196,7 +196,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                 '<tpl for=".">',
                 '    <tpl if="values.idaddress == 0">',
                 '        <div class="x-combo-list-item" ext:qtip="{values.feature.attributes.addr3}">',
-                '            {values.name}',
+                '            {values.name4}',
                 '        </div>',
                 '    </tpl>', //end if cmd==getfulladdresses
                 '    <tpl if="values.idaddress != 0">',
@@ -360,6 +360,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             'name',
             'name2',
             'name3',
+            'name4',
             'nameindex',
             //address related fields
             {name: "idaddress", type: "int"},
@@ -448,6 +449,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                         record.set("name", GEOR.util.stringReplaceCharCodes(record.get("name")));
                         record.set("name2", GEOR.util.stringReplaceCharCodes(record.get("name2")));
                         record.set("name3", GEOR.util.stringReplaceCharCodes(record.get("name3")));
+                        record.set("name4", GEOR.util.stringReplaceCharCodes(record.get("name4")));
                         record.set("nameindex", GEOR.util.stringReplaceCharCodes(record.get("nameindex")));
                         record.set("addr1", GEOR.util.stringReplaceCharCodes(record.get("addr1")));
                         record.set("addr2", GEOR.util.stringReplaceCharCodes(record.get("addr2")));
