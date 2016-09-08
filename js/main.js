@@ -315,8 +315,18 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
                     },
                     scope: this
                 },
-            ]
-
+            ],
+            listeners: {
+                "close": function() {
+                    this.layer.destroyFeatures();
+                    this.layerLane.destroyFeatures();
+                },
+                "hide": function() {
+                    this.layer.destroyFeatures();
+                    this.layerLane.destroyFeatures();
+                },
+                scope: this
+            }
         });
     },
 
