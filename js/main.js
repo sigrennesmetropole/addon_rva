@@ -250,7 +250,7 @@ GEOR.Addons.RVA = Ext.extend(GEOR.Addons.Base, {
             title: "Adresses dans la voie",
             layout: "fit",
             width: 540,
-            autoHeight: true,
+            height: 400,
             closable: true,
             closeAction: "hide",
             items: [
